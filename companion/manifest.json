@@ -1,0 +1,28 @@
+{
+	"$schema": "../node_modules/@companion-module/base/assets/manifest.schema.json",
+	"type": "connection",
+	"id": "agentdeck",
+	"name": "companion-module-agentdeck",
+	"shortname": "AgentDeck",
+	"description": "Control AgentDeck AI coding agents (Codex / Claude / Gemini) from a fixed 2x3 AI Control Surface: per-provider status and a global approval queue.",
+	"version": "1.15.0",
+	"license": "MIT",
+	"repository": "git+https://github.com/puritysb/AgentDeck.git",
+	"bugs": "https://github.com/puritysb/AgentDeck/issues",
+	"maintainers": [
+		{
+			"name": "AgentDeck Companion contributors",
+			"email": "noreply@example.com"
+		}
+	],
+	"runtime": {
+		"type": "node22",
+		"api": "nodejs-ipc",
+		"apiVersion": "2.1.3",
+		"entrypoint": "../dist/main.js"
+	},
+	"legacyIds": [],
+	"manufacturer": "AgentDeck",
+	"products": ["AgentDeck daemon"],
+	"keywords": ["AI", "Claude", "Codex", "agent", "approval", "coding"]
+}

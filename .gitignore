@@ -1,0 +1,8 @@
+node_modules/
+dist/
+pkg/
+pkg.tgz
+*.log
+.DS_Store
+*.tgz
+old-builds/
