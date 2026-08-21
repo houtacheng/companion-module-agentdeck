@@ -1,7 +1,8 @@
 import type { CompanionFeedbackDefinitions } from '@companion-module/base'
 import { combineRgb } from '@companion-module/base'
 import { PROVIDER_IDS, PROVIDER_LABEL, type ProviderId } from '../agentdeck/mapper.js'
-import type { ProviderStatus } from '../state/stateMapper.js'
+import { mapSessionStatus, type ProviderStatus } from '../state/stateMapper.js'
+import type { ProviderState } from '../state/providerRegistry.js'
 import { renderPet } from './pet.js'
 import { renderBaimi } from './baimi.js'
 import { renderTile } from './tile.js'
@@ -92,6 +93,51 @@ const actionChoices = [
   { id: 'session', label: 'Approve Session' },
   { id: 'reject', label: 'Reject' },
 ]
+
+/** How many concurrent sessions of one provider a "Session" dropdown can
+ *  address individually. A provider running more than this many at once
+ *  still works — sessions beyond the cap just aren't independently pickable
+ *  — 8 comfortably covers normal use without a huge dropdown. */
+const MAX_ADDRESSABLE_SESSIONS = 8
+
+/** Shared by the Pet/Tile feedbacks: "Active" (today's behavior — the
+ *  provider's single highest-priority session, unchanged) or a specific
+ *  Session N. Without this, every Pet/Tile button for a provider shows the
+ *  SAME session — dragging multiple onto a page (expecting one-per-session,
+ *  like the official Stream Deck grid) rendered N identical copies of
+ *  whichever session happened to be highest priority. */
+const sessionSlotOption = {
+  type: 'dropdown' as const,
+  id: 'sessionSlot',
+  label: 'Session',
+  default: 'active',
+  choices: [
+    { id: 'active', label: 'Active (highest priority)' },
+    ...Array.from({ length: MAX_ADDRESSABLE_SESSIONS }, (_, i) => ({ id: String(i), label: `Session ${i + 1}` })),
+  ],
+}
+
+/** Resolve a Pet/Tile feedback's chosen session + its own status. `slot`
+ *  is the sessionSlotOption value: 'active' reproduces the pre-slot
+ *  behavior (provider's aggregated status + its priority-picked session);
+ *  a numeric string addresses `state.sessions[N]` (stable-sorted by
+ *  ProviderRegistry — see its startedAt sort) and reflects THAT session's
+ *  own status, not the provider aggregate. An out-of-range index (fewer
+ *  live sessions than slots placed) resolves to an empty/offline slot
+ *  rather than silently falling back to another session. */
+function resolveSessionSlot(
+  state: ProviderState,
+  connected: boolean,
+  slot: unknown,
+): { status: ProviderStatus; session: ProviderState['sessions'][number] | undefined } {
+  if (!connected) return { status: 'offline', session: undefined }
+  if (slot === 'active' || typeof slot !== 'string') {
+    return { status: state.status, session: state.sessions.find((s) => s.id === state.activeSessionId) }
+  }
+  const session = state.sessions[Number(slot)]
+  if (!session) return { status: 'offline', session: undefined }
+  return { status: mapSessionStatus(session), session }
+}
 
 export function buildFeedbacks(self: AgentDeckInstance): CompanionFeedbackDefinitions {
   const defs: CompanionFeedbackDefinitions = {
@@ -236,11 +282,16 @@ export function buildFeedbacks(self: AgentDeckInstance): CompanionFeedbackDefini
     defs[petFeedbackId(p)] = {
       type: 'advanced',
       name: PET_NAME[p],
-      description: `Draws the ${PROVIDER_LABEL[p]} creature on the button, animated by ${PROVIDER_LABEL[p]} status.`,
-      options: skinOption,
+      description:
+        `Draws the ${PROVIDER_LABEL[p]} creature on the button, animated by status. The "Session" option ` +
+        'picks which session this button reflects when more than one is running — leave it on Active to ' +
+        'keep today\'s behavior (the provider\'s single highest-priority session).',
+      options: [...skinOption, sessionSlotOption],
       affectedProperties: ['png64'],
       callback: (feedback) => {
-        const status = self.isDaemonConnected() ? self.registry.getProvider(p).status : 'offline'
+        const connected = self.isDaemonConnected()
+        const state = self.registry.getProvider(p)
+        const { status } = resolveSessionSlot(state, connected, feedback.options.sessionSlot)
         const frame = self.getPetFrame()
         if (p === 'codex' && feedback.options.skin === 'baimi') {
           return { png64: renderBaimi(status, frame) }
@@ -255,16 +306,19 @@ export function buildFeedbacks(self: AgentDeckInstance): CompanionFeedbackDefini
     defs[tileFeedbackId(p)] = {
       type: 'advanced',
       name: `${PROVIDER_LABEL[p]} Tile (official look)`,
-      description: `Full ${PROVIDER_LABEL[p]} session tile: status, model, creature and ACT badge.`,
-      options: skinOption,
+      description:
+        `Full ${PROVIDER_LABEL[p]} session tile: status, model, creature and ACT badge. The "Session" ` +
+        'option picks which session this button reflects when more than one is running — place several ' +
+        'tiles with different Session values (Session 1, Session 2, …) to show them side by side, the way ' +
+        'the official Stream Deck grid gives each session its own key. Leave it on Active for today\'s ' +
+        'default (the provider\'s single highest-priority session — this is why every Tile button used to ' +
+        'show the same session when you dragged more than one).',
+      options: [...skinOption, sessionSlotOption],
       affectedProperties: ['png64'],
       callback: (feedback) => {
         const connected = self.isDaemonConnected()
         const state = self.registry.getProvider(p)
-        const status = connected ? state.status : 'offline'
-        const active = connected
-          ? state.sessions.find((s) => s.id === state.activeSessionId)
-          : undefined
+        const { status, session } = resolveSessionSlot(state, connected, feedback.options.sessionSlot)
         return {
           png64: renderTile(
             p,
@@ -272,8 +326,8 @@ export function buildFeedbacks(self: AgentDeckInstance): CompanionFeedbackDefini
               skin: p === 'codex' ? (feedback.options.skin as string | undefined) : undefined,
               status,
               name: TITLE_NAME[p],
-              model: active?.modelName ?? '',
-              act: connected && state.sessionCount > 0,
+              model: session?.modelName ?? '',
+              act: connected && session !== undefined,
             },
             self.getPetFrame(),
           ),

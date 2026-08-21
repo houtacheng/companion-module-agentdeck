@@ -225,6 +225,33 @@ SESSION button is disabled there.
 - On disconnect, all pending approvals are dropped; nothing from before a
   reconnect is ever re-actioned.
 
+## Running more than one session per provider
+
+By default, every Tile/Pet button for a provider shows its single
+**Active** session — the one highest-priority session (approval > input >
+review > working > done > idle, then earliest-started). That's fine with one
+session running, but if you run two Claude sessions side by side, dragging
+the Tile preset twice used to render **two identical copies** of whichever
+one happened to be highest priority — there was no way to point a button at
+"the other one."
+
+Both the **Session Tiles (official look)** and **Pets** feedbacks now have a
+**Session** dropdown: leave it on *Active* for the old single-session
+behavior, or pick **Session 1**, **Session 2**, … to address a specific
+concurrent session directly. Numbering is stable across daemon updates
+(sessions are sorted by start time, not by whatever order `sessions_list`
+happens to arrive in), so "Session 1" keeps pointing at the same session tick
+to tick — it doesn't jump around when a newer session starts or an older one
+that hasn't been placed on a slot changes status.
+
+**Presets → AgentDeck → Session Slots (multiple sessions per provider)**
+ships two ready-made slots per provider (Session 1 / Session 2); for a third
+concurrent session, drag the base Tile preset and change its feedback's
+Session option to **Session 3** yourself. A slot with no matching session
+(e.g. Session 2 when only one is running) renders the same dim OFFLINE tile
+as a provider with nothing running — it never falls back to showing another
+session's data.
+
 ## Pets (animated creatures)
 
 **Presets → AgentDeck → Pets** has one animated creature button per provider:

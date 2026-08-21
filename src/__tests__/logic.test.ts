@@ -77,6 +77,54 @@ describe('provider aggregation (priority)', () => {
   })
 })
 
+describe('provider session ordering (multi-session addressing — reported bug: ' +
+  'every Tile/Pet preset for a provider showed the same session)', () => {
+  it('sorts sessions by startedAt so slot indices are stable', () => {
+    const { store, registry } = makeStack()
+    store.replaceAll([
+      session({ id: 'later', agentType: 'claude-code', state: 'idle', startedAt: '2026-08-21T08:00:00Z' }),
+      session({ id: 'earlier', agentType: 'claude-code', state: 'processing', startedAt: '2026-08-21T07:00:00Z' }),
+    ])
+    const claude = registry.getProvider('claude')
+    expect(claude.sessions.map((s) => s.id)).toEqual(['earlier', 'later'])
+  })
+  it('falls back to id ordering when startedAt is missing/tied', () => {
+    const { store, registry } = makeStack()
+    store.replaceAll([
+      session({ id: 'zzz', agentType: 'claude-code', state: 'idle' }),
+      session({ id: 'aaa', agentType: 'claude-code', state: 'idle' }),
+    ])
+    const claude = registry.getProvider('claude')
+    expect(claude.sessions.map((s) => s.id)).toEqual(['aaa', 'zzz'])
+  })
+  it('slot order is stable across rebuilds even if sessions_list arrives reshuffled', () => {
+    const { store, registry } = makeStack()
+    const a = session({ id: 'a', agentType: 'claude-code', state: 'idle', startedAt: '2026-08-21T07:00:00Z' })
+    const b = session({ id: 'b', agentType: 'claude-code', state: 'idle', startedAt: '2026-08-21T08:00:00Z' })
+    store.replaceAll([a, b])
+    const first = registry.getProvider('claude').sessions.map((s) => s.id)
+    store.replaceAll([b, a]) // daemon resent the roster in a different order
+    const second = registry.getProvider('claude').sessions.map((s) => s.id)
+    expect(first).toEqual(second)
+    expect(first).toEqual(['a', 'b'])
+  })
+  it('two concurrent sessions of the same provider are independently addressable by slot index', () => {
+    const { store, registry } = makeStack()
+    store.replaceAll([
+      session({ id: 'idle-one', agentType: 'claude-code', state: 'idle', startedAt: '2026-08-21T07:00:00Z' }),
+      session({ id: 'working-two', agentType: 'claude-code', state: 'processing', startedAt: '2026-08-21T08:00:00Z' }),
+    ])
+    const claude = registry.getProvider('claude')
+    // The old bug: every Tile button showed claude.activeSessionId (the
+    // priority-picked session — here 'working-two', since working > idle),
+    // no matter how many were dragged onto the page. Slot 0/1 must resolve
+    // to the two DIFFERENT sessions instead.
+    expect(claude.activeSessionId).toBe('working-two')
+    expect(claude.sessions[0]?.id).toBe('idle-one')
+    expect(claude.sessions[1]?.id).toBe('working-two')
+  })
+})
+
 describe('Scenario A — Codex working, Claude idle, no Gemini', () => {
   it('produces the expected surface + empty queue', () => {
     const { store, registry, coordinator } = makeStack()

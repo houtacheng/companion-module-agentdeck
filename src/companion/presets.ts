@@ -151,9 +151,10 @@ export function buildPresets(self: AgentDeckInstance): PresetsResult {
       ],
       // Codex's pet feedback has a `skin` option; supply its default explicitly
       // so the preset instantiates the feedback (an empty options object leaves
-      // the required dropdown unset and the button renders blank).
+      // the required dropdown unset and the button renders blank). Same reason
+      // sessionSlot is spelled out as 'active' rather than left implicit.
       feedbacks: [
-        { feedbackId: petFeedbackId(p), options: p === 'codex' ? { skin: 'default' } : {} },
+        { feedbackId: petFeedbackId(p), options: { sessionSlot: 'active', ...(p === 'codex' ? { skin: 'default' } : {}) } },
       ],
     }
   }
@@ -170,8 +171,33 @@ export function buildPresets(self: AgentDeckInstance): PresetsResult {
       // Codex's tile feedback has a `skin` option; supply its default explicitly
       // so the preset instantiates the feedback (same reason as the pet preset).
       feedbacks: [
-        { feedbackId: tileFeedbackId(p), options: p === 'codex' ? { skin: 'default' } : {} },
+        { feedbackId: tileFeedbackId(p), options: { sessionSlot: 'active', ...(p === 'codex' ? { skin: 'default' } : {}) } },
       ],
+    }
+  }
+
+  // ---- Session slot tiles/pets — for running MORE THAN ONE session of the
+  // same provider at once. The default `${p}_tile`/`${p}_pet` above always
+  // show the single highest-priority session ("Active"), so dragging that
+  // preset twice for the same provider used to show two identical copies of
+  // whichever session happened to be highest priority — this is what "Session
+  // 1"/"Session 2" fix: each addresses a specific concurrent session
+  // (ProviderRegistry sorts sessions by startedAt so the numbering is stable
+  // tick to tick), the way the official Stream Deck grid gives each session
+  // its own key. Two ready-made slots per provider; add more by dragging the
+  // base preset and changing its feedback's Session dropdown past 2. ----
+  const SESSION_SLOTS = 2
+  for (const p of PROVIDER_IDS) {
+    for (let slot = 0; slot < SESSION_SLOTS; slot++) {
+      presets[`${p}_tile_session_${slot + 1}`] = {
+        type: 'simple',
+        name: `${PROVIDER_LABEL[p]} Tile — Session ${slot + 1}`,
+        style: { text: '', size: '7', color: WHITE, bgcolor: combineRgb(0, 0, 0) },
+        steps: [{ down: [{ actionId: selectApprovalActionId(p), options: {} }], up: [] }],
+        feedbacks: [
+          { feedbackId: tileFeedbackId(p), options: { sessionSlot: String(slot), ...(p === 'codex' ? { skin: 'default' } : {}) } },
+        ],
+      }
     }
   }
 
@@ -404,6 +430,17 @@ export function buildPresets(self: AgentDeckInstance): PresetsResult {
       name: 'Session Tiles (official look)',
       description: 'Full-tile status keys matching the official AgentDeck Stream Deck design, for every provider.',
       definitions: [...PROVIDER_IDS.map((p) => `${p}_tile`), 'codex_tile_baimi'],
+    },
+    {
+      id: 'session_slots',
+      name: 'Session Slots (multiple sessions per provider)',
+      description:
+        'For running more than one session of the same provider at once — the base Tile preset always ' +
+        'shows the single highest-priority ("Active") session, so multiple copies of it look identical. ' +
+        'These address a specific concurrent session via the feedback\'s "Session" dropdown (numbered ' +
+        'stably by start time). Two slots per provider here; drag the base Tile preset and bump its ' +
+        'Session option for a third or beyond.',
+      definitions: PROVIDER_IDS.flatMap((p) => Array.from({ length: 2 }, (_, i) => `${p}_tile_session_${i + 1}`)),
     },
     {
       id: 'session_info',

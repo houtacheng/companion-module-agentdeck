@@ -56,6 +56,18 @@ export class ProviderRegistry {
       const p = out[pid]
       if (p.sessions.length === 0) continue
 
+      // Stable slot order (spec: multiple concurrent sessions for one provider
+      // must be individually addressable — see sessionSlot on the pet/tile
+      // feedbacks). `sessions_list` order is the daemon's own and can reshuffle
+      // tick to tick, so sort by startedAt (fallback: id) rather than trusting
+      // array position — "Session 1" then means the same session across ticks.
+      p.sessions.sort((a, b) => {
+        const at = a.startedAt ? Date.parse(a.startedAt) : Number.POSITIVE_INFINITY
+        const bt = b.startedAt ? Date.parse(b.startedAt) : Number.POSITIVE_INFINITY
+        if (at !== bt) return at - bt
+        return a.id < b.id ? -1 : a.id > b.id ? 1 : 0
+      })
+
       // Aggregate to the highest-priority status among the provider's sessions.
       let best: ProviderStatus = 'offline'
       let bestSession: SessionInfo | undefined
