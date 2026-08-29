@@ -11,7 +11,12 @@ Connects **only** to the AgentDeck daemon (default `127.0.0.1:9120`) over
 WebSocket — never to any agent directly, and does no terminal scraping, key
 simulation, or session discovery (that all lives in AgentDeck).
 
-Current version: **1.8.1** · built against `@companion-module/base` 2.x.
+Current version: **1.16.0** · built against `@companion-module/base` 2.x.
+
+Unofficial community module — not affiliated with or distributed by the
+AgentDeck project. Maintenance, distribution, and issue triage for this
+module live in this repo; see [AgentDeck](https://github.com/puritysb/AgentDeck)
+for the daemon itself.
 
 ## Features
 

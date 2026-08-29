@@ -4,14 +4,14 @@
 	"id": "agentdeck",
 	"name": "companion-module-agentdeck",
 	"shortname": "AgentDeck",
-	"description": "Control AgentDeck AI coding agents (Codex / Claude / Gemini) from a fixed 2x3 AI Control Surface: per-provider status and a global approval queue.",
-	"version": "1.16.0",
+	"description": "Unofficial community module: control AgentDeck AI coding agents (Codex / Claude / Gemini / OpenClaw / OpenCode / Antigravity / Kiro) from a Companion control surface — per-provider status, a global approval queue, session tiles and quick actions.",
+	"version": "1.16.1",
 	"license": "MIT",
-	"repository": "git+https://github.com/puritysb/AgentDeck.git",
-	"bugs": "https://github.com/puritysb/AgentDeck/issues",
+	"repository": "git+https://github.com/houtacheng/companion-module-agentdeck.git",
+	"bugs": "https://github.com/houtacheng/companion-module-agentdeck/issues",
 	"maintainers": [
 		{
-			"name": "AgentDeck Companion contributors",
+			"name": "houtacheng",
 			"email": "noreply@example.com"
 		}
 	],
