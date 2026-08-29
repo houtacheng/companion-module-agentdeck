@@ -19,7 +19,7 @@ export type AgentDeckState =
   | 'awaiting_option'
   | 'awaiting_diff'
 
-// ---- adapter.ts: AgentType union (NOTE: no 'gemini' upstream today) ----
+// ---- adapter.ts: AgentType union ----
 export type AgentType =
   | 'claude-code'
   | 'openclaw'
@@ -30,9 +30,6 @@ export type AgentType =
   | 'kiro-cli'
   | 'kiro-ide'
   | 'monitor'
-  // Kept for forward-compat: upstream has no Gemini adapter yet (see mapper.ts).
-  | 'gemini'
-  | 'gemini-cli'
 
 export type PromptType = 'yes_no' | 'yes_no_always' | 'multi_select' | 'diff_review'
 

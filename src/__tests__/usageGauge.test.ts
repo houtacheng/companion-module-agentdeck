@@ -58,7 +58,7 @@ describe('renderUsageGauge', () => {
   })
 
   it('is valid for every provider (creature icon must not throw)', () => {
-    for (const provider of ['codex', 'claude', 'gemini', 'openclaw', 'opencode', 'antigravity', 'kiro'] as const) {
+    for (const provider of ['codex', 'claude', 'openclaw', 'opencode', 'antigravity', 'kiro'] as const) {
       const buf = Buffer.from(renderUsageGauge({ provider, label: 'X', known: true, usedPercent: 10 }, 0), 'base64')
       expect(buf.subarray(0, 8).equals(PNG_SIG)).toBe(true)
     }

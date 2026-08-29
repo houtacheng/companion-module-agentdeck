@@ -6,16 +6,16 @@ import type { AgentType } from './protocol.js'
  *   'claude-code' | 'openclaw' | 'codex-cli' | 'codex-app' | 'opencode'
  *   | 'antigravity' | 'kiro-cli' | 'kiro-ide' | 'monitor'
  * `monitor` is deliberately excluded — it is a usage-only observation mode,
- * not an interactive coding agent with sessions to approve/reject. `gemini`
- * has no adapter in AgentDeck yet (see mapAgentType) but the slot is kept so
- * the module doesn't need another breaking change once upstream ships one.
+ * not an interactive coding agent with sessions to approve/reject. Gemini has
+ * no adapter in AgentDeck (no `gemini`/`gemini-cli` case in the AgentType
+ * union upstream), so there is no provider row for it — a permanently-OFFLINE
+ * slot would only confuse users. Re-add it if upstream ever ships one.
  */
-export type ProviderId = 'codex' | 'claude' | 'gemini' | 'openclaw' | 'opencode' | 'antigravity' | 'kiro'
+export type ProviderId = 'codex' | 'claude' | 'openclaw' | 'opencode' | 'antigravity' | 'kiro'
 
 export const PROVIDER_IDS: readonly ProviderId[] = [
   'codex',
   'claude',
-  'gemini',
   'openclaw',
   'opencode',
   'antigravity',
@@ -25,7 +25,6 @@ export const PROVIDER_IDS: readonly ProviderId[] = [
 export const PROVIDER_LABEL: Record<ProviderId, string> = {
   codex: 'CODEX',
   claude: 'CLAUDE',
-  gemini: 'GEMINI',
   openclaw: 'OPENCLAW',
   opencode: 'OPENCODE',
   antigravity: 'ANTIGRAVITY',
@@ -36,12 +35,11 @@ export const PROVIDER_LABEL: Record<ProviderId, string> = {
  * Map an AgentDeck AgentType to a surface provider.
  *
  * IMPORTANT (verified against upstream `shared/src/adapter.ts`): the AgentType
- * union has NO `gemini` / `gemini-cli` today — those cases are kept for
- * forward-compat and simply never fire until upstream ships a Gemini adapter,
- * so the Gemini slot stays OFFLINE. `codex-cli`/`codex-app` fold into one
- * `codex` row and `kiro-cli`/`kiro-ide` into one `kiro` row, matching how
- * upstream's own UI treats each pair as one product. `monitor` maps to
- * undefined on purpose (spec §38-style exclusion) — it is not a row.
+ * union has no `gemini`/`gemini-cli` case, so there is no Gemini mapping here.
+ * `codex-cli`/`codex-app` fold into one `codex` row and `kiro-cli`/`kiro-ide`
+ * into one `kiro` row, matching how upstream's own UI treats each pair as one
+ * product. `monitor` maps to undefined on purpose (spec §38-style exclusion)
+ * — it is not a row.
  */
 export function mapAgentType(agentType: string | undefined): ProviderId | undefined {
   switch (agentType) {
@@ -50,9 +48,6 @@ export function mapAgentType(agentType: string | undefined): ProviderId | undefi
       return 'codex'
     case 'claude-code':
       return 'claude'
-    case 'gemini':
-    case 'gemini-cli':
-      return 'gemini'
     case 'openclaw':
       return 'openclaw'
     case 'opencode':

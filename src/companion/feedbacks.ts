@@ -19,7 +19,6 @@ export { isBlinkOnBeat, needsYourResponse, BLINK_HALF_CYCLE_FRAMES } from './bli
 const TITLE_NAME: Record<ProviderId, string> = {
   codex: 'Codex',
   claude: 'Claude',
-  gemini: 'Gemini',
   openclaw: 'OpenClaw',
   opencode: 'OpenCode',
   antigravity: 'Antigravity',
@@ -255,7 +254,6 @@ export function buildFeedbacks(self: AgentDeckInstance): CompanionFeedbackDefini
   const PET_NAME: Record<ProviderId, string> = {
     codex: 'Codex Pet (cloud, animated)',
     claude: 'Claude Pet (octopus, animated)',
-    gemini: 'Gemini Pet (spark placeholder, animated)',
     openclaw: 'OpenClaw Pet (crayfish, animated)',
     opencode: 'OpenCode Pet (nested ring, animated)',
     antigravity: 'Antigravity Pet (rainbow mark, animated)',

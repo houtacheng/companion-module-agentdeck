@@ -16,9 +16,9 @@ export interface PresetsResult {
 }
 
 /**
- * The fixed 2x3 AI Control Surface (spec §22):
- *   Row 1: CODEX | CLAUDE | GEMINI  (status + provider selector)
- *   Row 2: ONCE  | SESSION | REJECT (act on the global active approval)
+ * The AI Control Surface (spec §22):
+ *   Status keys: CODEX | CLAUDE (status + provider selector)
+ *   Approval row: ONCE | SESSION | REJECT (act on the global active approval)
  */
 export function buildPresets(self: AgentDeckInstance): PresetsResult {
   const v = (name: string) => `$(${self.label}:${name})`
@@ -125,7 +125,6 @@ export function buildPresets(self: AgentDeckInstance): PresetsResult {
   const PET_NAME: Record<ProviderId, string> = {
     codex: 'Codex Pet (cloud, animated)',
     claude: 'Claude Pet (octopus, animated)',
-    gemini: 'Gemini Pet (spark, animated)',
     openclaw: 'OpenClaw Pet (crayfish, animated)',
     opencode: 'OpenCode Pet (nested ring, animated)',
     antigravity: 'Antigravity Pet (rainbow mark, animated)',
@@ -382,12 +381,12 @@ export function buildPresets(self: AgentDeckInstance): PresetsResult {
     }
   }
 
-  // Providers beyond the fixed 2x3 core (spec's original three: Codex / Claude
-  // / Gemini). AgentDeck also supports OpenClaw, OpenCode, Antigravity, and
-  // Kiro — each gets the same status/tile/info/pet presets, just not a slot
-  // in the fixed 2x3 grid, whose layout is a deliberate design constant.
+  // Providers beyond the AI Control Surface core (Codex / Claude). AgentDeck
+  // also supports OpenClaw, OpenCode, Antigravity, and Kiro — each gets the
+  // same status/tile/info/pet presets, just not a slot on the core surface.
+  // (Gemini has no AgentDeck adapter and was dropped entirely — see mapper.ts.)
   const EXTRA_PROVIDERS: ProviderId[] = PROVIDER_IDS.filter(
-    (p) => p !== 'codex' && p !== 'claude' && p !== 'gemini',
+    (p) => p !== 'codex' && p !== 'claude',
   )
 
   const structure: CompanionPresetSection[] = [
@@ -395,12 +394,11 @@ export function buildPresets(self: AgentDeckInstance): PresetsResult {
       id: 'ai_control_surface',
       name: 'AI Control Surface',
       description:
-        'Fixed 2x3 surface — Row 1: Codex / Claude / Gemini status (press to select that provider\'s approval). ' +
-        'Row 2: Approve Once / Approve Session / Reject the global active approval.',
+        'Core surface — Codex / Claude status (press to select that provider\'s approval), plus ' +
+        'Approve Once / Approve Session / Reject the global active approval.',
       definitions: [
         'codex_status',
         'claude_status',
-        'gemini_status',
         'approve_once',
         'approve_session',
         'reject',

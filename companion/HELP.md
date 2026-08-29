@@ -1,15 +1,16 @@
 # AgentDeck — Companion module
 
-Drive your AI coding agents (Codex / Claude / Gemini) from a fixed **2×3 AI
-Control Surface**. This module talks **only** to the AgentDeck daemon over
-WebSocket — it never connects to Codex, Claude, or Gemini directly.
+Drive your AI coding agents (Codex / Claude, plus OpenClaw / OpenCode /
+Antigravity / Kiro) from an **AI Control Surface**. This module talks
+**only** to the AgentDeck daemon over WebSocket — it never connects to any
+agent directly.
 
 ```
-┌────────────┬────────────┬────────────┐
-│   CODEX    │   CLAUDE   │   GEMINI   │   ← Row 1: status + provider selector
-│   STATUS   │   STATUS   │   STATUS   │
-├────────────┼────────────┼────────────┤
-│  ✓ ONCE    │ ✓∞ SESSION │  ✕ REJECT  │   ← Row 2: act on the GLOBAL active approval
+┌────────────┬────────────┐
+│   CODEX    │   CLAUDE   │   ← status keys select that provider's approval
+│   STATUS   │   STATUS   │
+├────────────┼────────────┼────────────┐
+│  ✓ ONCE    │ ✓∞ SESSION │  ✕ REJECT  │   ← act on the GLOBAL active approval
 └────────────┴────────────┴────────────┘
 ```
 
@@ -156,46 +157,50 @@ AgentDeck daemon:
   OpenClaw's local gateway) — the exact fallback chains the official plugin
   uses.
 
-## The 2×3 preset
+## The AI Control Surface preset
 
-Open **Presets → AI Control Surface** and drop the six presets onto a page in
+Open **Presets → AI Control Surface** and drop the five presets onto a page in
 this layout:
 
 ```
-CODEX  | CLAUDE | GEMINI
-ONCE   | SESSION| REJECT
+CODEX  | CLAUDE
+ONCE   | SESSION | REJECT
 ```
 
-- **Row 1** shows each provider's aggregated status and doubles as an approval
-  selector — pressing e.g. **CODEX** points the global active approval at
-  Codex's earliest pending approval (no-op if Codex has none).
-- **Row 2** always controls the **single global active approval**, whichever
-  provider it currently belongs to. When one approval is resolved the surface
-  auto-advances to the next in the queue — no "Next" button needed.
+- **Codex/Claude status** shows each provider's aggregated status and doubles
+  as an approval selector — pressing e.g. **CODEX** points the global active
+  approval at Codex's earliest pending approval (no-op if Codex has none).
+- **ONCE/SESSION/REJECT** always control the **single global active
+  approval**, whichever provider it currently belongs to. When one approval
+  is resolved the surface auto-advances to the next in the queue — no "Next"
+  button needed.
 
 ## Supported providers
 
-The fixed 2×3 core is Codex / Claude / Gemini. Every other AgentDeck-supported
-agent also gets full support — status keys, the global approval queue,
-animated pet, and an official-look tile — just not a slot in that fixed 2×3
-grid (its layout is a deliberate design constant). Find them under
-**Presets → Additional Providers (Status)** and the Pets / Session Tiles /
-Session Info sections; drag them onto any page to build a larger surface.
+The core surface is Codex / Claude. Every other AgentDeck-supported agent
+also gets full support — status keys, the global approval queue, animated
+pet, and an official-look tile — just not a slot on that core surface. Find
+them under **Presets → Additional Providers (Status)** and the Pets / Session
+Tiles / Session Info sections; drag them onto any page to build a larger
+surface.
 
 | Provider | AgentDeck agent types | Creature |
 |----------|-----------------------|----------|
 | Codex        | `codex-cli`, `codex-app` | cloud (upstream art) |
 | Claude       | `claude-code` | octopus (upstream art) |
-| Gemini       | *(none yet — no daemon adapter; stays **OFFLINE**)* | spark — placeholder |
 | OpenClaw     | `openclaw` | crayfish (upstream art) |
 | OpenCode     | `opencode` | nested ring (upstream art) |
 | Antigravity  | `antigravity` | rainbow peak/arc mark (upstream art) |
 | Kiro         | `kiro-cli`, `kiro-ide` (one row) | ghost — placeholder |
 
-"Placeholder" creatures (Gemini, Kiro) exist because upstream AgentDeck has no
-pixel-art mascot for them yet (Gemini: no adapter at all; Kiro: only a vector
-brand mark) — they're generic, not claimed official mascots. Every other
-creature above is transcribed from AgentDeck's own pixel-art source
+Gemini has no AgentDeck adapter at all (no `gemini`/`gemini-cli` case in
+upstream's `AgentType` union), so this module has no provider row for it —
+a permanently-OFFLINE slot would only confuse users.
+
+Kiro's "placeholder" creature exists because upstream AgentDeck has no
+pixel-art mascot for it yet (only a vector brand mark) — it's generic, not a
+claimed official mascot. Every other creature above is transcribed from
+AgentDeck's own pixel-art source
 (`bridge/src/pixoo/pixoo-sprites.ts`).
 
 `monitor` (a usage-only observation mode, not an interactive agent) is
@@ -260,7 +265,6 @@ session's data.
 |----------|----------|
 | Codex  | indigo cloud with a `>_` prompt (upstream jellyfish mascot) |
 | Claude | terracotta octopus (upstream mascot) |
-| Gemini | blue-violet 4-point spark — a **placeholder** (AgentDeck has no Gemini creature yet) |
 
 Each pet animates from its provider's aggregated status:
 
@@ -310,7 +314,8 @@ convert the sheet to `spritesheet.png` first.
 `codex_working_count`, `codex_approval_count`, `codex_active_project` plus active-
 session detail `codex_model`, `codex_effort`, `codex_tool`, `codex_activity`,
 `codex_context_percent`, `codex_total_tokens`, `codex_elapsed` (and the same for
-`claude_`/`gemini_`); global approval `approval_provider`,
+every other provider — `claude_`, `openclaw_`, `opencode_`, `antigravity_`,
+`kiro_`); global approval `approval_provider`,
 `approval_provider_name`, `approval_project`, `approval_question`,
 `approval_type`, `approval_count`, `approval_actionable`, `approval_can_once`,
 `approval_can_session`, `approval_can_reject`; usage `usage_known`,
@@ -328,4 +333,3 @@ session detail `codex_model`, `codex_effort`, `codex_tool`, `codex_activity`,
   Re-check the Auth Token (local connections should leave it blank).
 - **APPROVAL shows but buttons are dark** — the request is observed-only / not
   actionable from a device. Answer it in the agent's own terminal.
-- **Gemini always OFFLINE** — expected; AgentDeck has no Gemini adapter yet.

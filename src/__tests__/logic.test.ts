@@ -28,9 +28,9 @@ describe('mapAgentType', () => {
     expect(mapAgentType('codex-app')).toBe('codex')
     expect(mapAgentType('claude-code')).toBe('claude')
   })
-  it('keeps gemini slot forward-compatible', () => {
-    expect(mapAgentType('gemini')).toBe('gemini')
-    expect(mapAgentType('gemini-cli')).toBe('gemini')
+  it('has no Gemini mapping — upstream has no adapter for it', () => {
+    expect(mapAgentType('gemini')).toBeUndefined()
+    expect(mapAgentType('gemini-cli')).toBeUndefined()
   })
   it('maps every other AgentDeck-supported agent to its own provider', () => {
     expect(mapAgentType('openclaw')).toBe('openclaw')
@@ -125,7 +125,7 @@ describe('provider session ordering (multi-session addressing — reported bug: 
   })
 })
 
-describe('Scenario A — Codex working, Claude idle, no Gemini', () => {
+describe('Scenario A — Codex working, Claude idle', () => {
   it('produces the expected surface + empty queue', () => {
     const { store, registry, coordinator } = makeStack()
     store.replaceAll([
@@ -135,7 +135,6 @@ describe('Scenario A — Codex working, Claude idle, no Gemini', () => {
     coordinator.update()
     expect(registry.getProvider('codex').status).toBe('working')
     expect(registry.getProvider('claude').status).toBe('idle')
-    expect(registry.getProvider('gemini').status).toBe('offline')
     expect(coordinator.getQueue()).toHaveLength(0)
     expect(coordinator.getActive()).toBeNull()
   })
@@ -230,7 +229,7 @@ describe('Scenario E — manual provider selection', () => {
     expect(coordinator.selectProvider('codex')).toBe(true)
     expect(coordinator.getActive()?.provider).toBe('codex')
     // Selecting a provider with no pending approval leaves active unchanged.
-    expect(coordinator.selectProvider('gemini')).toBe(false)
+    expect(coordinator.selectProvider('kiro')).toBe(false)
     expect(coordinator.getActive()?.provider).toBe('codex')
   })
 })

@@ -16,10 +16,10 @@ import { withBlink } from './blink.js'
  *   - OpenCode  = OPENCODE_GRID_HD (nested ring)        · COLORS.opencode*
  *   - Antigravity = ANTIGRAVITY_GRID (rainbow peak/arc, a different multi-hue
  *     letter-grid format) — has its own module, see `./antigravity.ts`.
- *   - Gemini / Kiro = no upstream creature exists (no adapter, or upstream has
- *     only a vector brand mark with no pixel-art grid) — a neutral placeholder
- *     stands in until upstream ships pixel art. Intentionally generic, never
- *     presented as an official mascot.
+ *   - Kiro = no upstream creature exists yet (upstream has only a vector
+ *     brand mark, no pixel-art grid) — a neutral placeholder stands in until
+ *     upstream ships pixel art. Intentionally generic, never presented as an
+ *     official mascot.
  */
 
 type RGB = [number, number, number]
@@ -149,34 +149,6 @@ const CLAUDE_GRID: number[][] = [
   [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 ]
 
-// ===== Gemini — placeholder 4-point spark (0 empty · 1 body · 2 core) =====
-const GEMINI_GRID: number[][] = [
-  [0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0],
-  [0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0],
-  [0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0],
-  [0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0],
-  [0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0],
-  [0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0],
-  [0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0],
-  [0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0],
-  [0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0],
-  [0,0,0,0,1,1,1,1,1,1,2,2,2,2,1,1,1,1,1,1,0,0,0,0],
-  [0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,1,1,1,1,1,1,1,0,0],
-  [0,1,1,1,1,1,1,1,1,2,2,2,2,2,2,1,1,1,1,1,1,1,1,0],
-  [0,1,1,1,1,1,1,1,1,2,2,2,2,2,2,1,1,1,1,1,1,1,1,0],
-  [0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,1,1,1,1,1,1,1,0,0],
-  [0,0,0,0,1,1,1,1,1,1,2,2,2,2,1,1,1,1,1,1,0,0,0,0],
-  [0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0],
-  [0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0],
-  [0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0],
-  [0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0],
-  [0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0],
-  [0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0],
-  [0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0],
-  [0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0],
-  [0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0],
-]
-
 // ===== OpenClaw — crayfish (0 empty · 1 body · 2 eye · 3/4 claws · 5/6 leg
 // tips · 7 antenna). Eyes at [9][8]/[9][14] are injected manually — upstream
 // draws them as a separate overlay rather than baking them into the grid. =====
@@ -242,7 +214,7 @@ const OPENCODE_GRID: number[][] = [
 
 // ===== Kiro — no upstream pixel-art grid exists (only a vector "ghost" brand
 // mark). This is an honest, generic placeholder silhouette — a simple rounded
-// ghost shape — not a claimed official mascot, same status as the Gemini spark.
+// ghost shape — not a claimed official mascot.
 const KIRO_GRID: number[][] = [
   [0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0],
   [0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0],
@@ -307,24 +279,6 @@ const SPECS: Record<GridProvider, PetSpec> = {
       bg: DARK_WATER,
     },
   },
-  gemini: {
-    grid: GEMINI_GRID,
-    cols: 24,
-    rows: 24,
-    role: { 1: 'body', 2: 'marking' },
-    palette: {
-      body: [0x5b, 0x8d, 0xef], // Gemini blue
-      accent: [0xa9, 0x70, 0xff], // violet
-      eye: [0x10, 0x08, 0x08],
-      marking: [0xe8, 0xf0, 0xff],
-      edge: [0x6e, 0x56, 0xd6],
-      glow: [0x2a, 0x33, 0x66],
-      pulse: [0xc9, 0xb6, 0xff],
-      sleeping: [0x33, 0x3a, 0x5a],
-      error: [0xff, 0x52, 0x41],
-      bg: DARK_WATER,
-    },
-  },
   openclaw: {
     grid: OPENCLAW_GRID,
     cols: 24,
@@ -368,7 +322,7 @@ const SPECS: Record<GridProvider, PetSpec> = {
     role: { 1: 'body', 2: 'eye', 3: 'accent' },
     palette: {
       // No official upstream colour exists (vector mark only) — a plausible,
-      // clearly-generic teal/violet pair, same honesty level as Gemini's spark.
+      // clearly-generic teal/violet pair, not claimed as an official palette.
       body: [0x6a, 0x8f, 0xa0],
       accent: [0x4a, 0x6b, 0x7a],
       eye: [0x10, 0x08, 0x08],

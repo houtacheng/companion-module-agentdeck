@@ -29,8 +29,8 @@ function emptyProvider(id: ProviderId): ProviderState {
 /**
  * Groups sessions by provider and aggregates them into ProviderState (spec §9).
  * Always returns a value for every `PROVIDER_IDS` entry — a provider with no
- * live sessions (e.g. Gemini, which has no AgentDeck adapter yet) defaults to
- * `offline` rather than being absent, so the surface never blanks a slot.
+ * live sessions defaults to `offline` rather than being absent, so the
+ * surface never blanks a slot.
  */
 export class ProviderRegistry {
   constructor(private store: SessionStore) {}
