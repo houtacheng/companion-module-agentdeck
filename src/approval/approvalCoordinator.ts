@@ -79,6 +79,7 @@ export class ApprovalCoordinator {
         requestId: s.requestId,
         projectName: s.projectName,
         question: s.question,
+        questionDetail: s.questionDetail,
         promptType: s.promptType,
         options: s.options,
         controlMode: s.controlMode,

@@ -12,6 +12,9 @@ export interface ApprovalCandidate {
   requestId?: string
   projectName?: string
   question?: string
+  /** Supporting lines under `question` — why approval is required (see
+   *  SessionInfo.questionDetail). Newline-separated, most-decisive-first. */
+  questionDetail?: string
   promptType?: PromptType
   options?: PromptOption[]
   controlMode?: 'managed' | 'observed'

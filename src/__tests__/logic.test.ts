@@ -170,6 +170,36 @@ describe('Scenario B — Claude actionable approval while Codex works', () => {
   })
 })
 
+describe('questionDetail (official v1.2.0: "why" behind an approval)', () => {
+  it('carries the policy reason through to the active candidate', () => {
+    const { store, coordinator } = makeStack()
+    store.replaceAll([
+      session({
+        id: 'a',
+        agentType: 'openclaw',
+        state: 'awaiting_permission',
+        requestId: 'x1',
+        question: 'sed -n "s/foo/bar/p" file.txt',
+        questionDetail: 'strict inline-eval mode requires reviewer or explicit approval for sed inline program',
+      }),
+    ])
+    coordinator.update()
+    const active = coordinator.getActive()
+    expect(active?.question).toBe('sed -n "s/foo/bar/p" file.txt')
+    expect(active?.questionDetail).toBe(
+      'strict inline-eval mode requires reviewer or explicit approval for sed inline program',
+    )
+  })
+  it('is undefined when the daemon sends none (older daemon / no reason available)', () => {
+    const { store, coordinator } = makeStack()
+    store.replaceAll([
+      session({ id: 'a', agentType: 'codex-cli', state: 'awaiting_permission', requestId: 'x1', question: 'rm -rf tmp/' }),
+    ])
+    coordinator.update()
+    expect(coordinator.getActive()?.questionDetail).toBeUndefined()
+  })
+})
+
 describe('Scenario C — auto advance after resolve', () => {
   it('advances Claude → Codex when Claude clears', () => {
     const { store, coordinator } = makeStack()

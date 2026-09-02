@@ -230,6 +230,19 @@ SESSION button is disabled there.
 - On disconnect, all pending approvals are dropped; nothing from before a
   reconnect is ever re-actioned.
 
+## Knowing *why* an approval was demanded
+
+`approval_question` alone is often just a shell command — e.g. `sed -n
+"s/foo/bar/p" file.txt` — which tells you nothing about why the agent needed
+your say-so for it. The `approval_question_detail` variable (official
+AgentDeck v1.2.0 addition) carries the supporting context the daemon attaches
+underneath: the policy reason approval was demanded, the working directory,
+or the originating session key. Add it as a second line under
+`approval_question` on any custom approval button — it turns "approve a sed"
+into "approve a sed that policy flagged," which is the difference that
+actually helps you decide. Empty when the daemon has nothing to add (older
+daemon, or no reason available for that particular gate).
+
 ## Running more than one session per provider
 
 By default, every Tile/Pet button for a provider shows its single
@@ -317,6 +330,8 @@ session detail `codex_model`, `codex_effort`, `codex_tool`, `codex_activity`,
 every other provider — `claude_`, `openclaw_`, `opencode_`, `antigravity_`,
 `kiro_`); global approval `approval_provider`,
 `approval_provider_name`, `approval_project`, `approval_question`,
+`approval_question_detail` (the *why* — policy reason, cwd, or originating
+session key behind the question; empty if the daemon sends none),
 `approval_type`, `approval_count`, `approval_actionable`, `approval_can_once`,
 `approval_can_session`, `approval_can_reject`; usage `usage_known`,
 `claude_usage_5h_percent`, `claude_usage_5h_reset`, `claude_usage_7d_percent`,

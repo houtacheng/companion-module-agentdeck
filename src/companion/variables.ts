@@ -11,6 +11,10 @@ export function buildVariableDefinitions(): CompanionVariableDefinitions {
     approval_provider_name: { name: 'Active approval — provider name' },
     approval_project: { name: 'Active approval — project' },
     approval_question: { name: 'Active approval — question' },
+    // Supporting lines under the question — cwd, the policy reason approval was
+    // demanded, the originating session key (official v1.2.0 addition: answers
+    // "approve a sed" vs "approve a sed that policy flagged").
+    approval_question_detail: { name: 'Active approval — why (policy reason / cwd / session)' },
     approval_type: { name: 'Active approval — prompt type' },
     approval_count: { name: 'Active approval — total pending' },
     approval_actionable: { name: 'Active approval — actionable (true/false)' },
@@ -103,6 +107,7 @@ export function computeVariableValues(self: AgentDeckInstance): CompanionVariabl
   values.approval_provider_name = provider ? PROVIDER_LABEL[provider] : ''
   values.approval_project = active?.projectName ?? ''
   values.approval_question = active?.question ?? ''
+  values.approval_question_detail = active?.questionDetail ?? ''
   values.approval_type = active?.promptType ?? ''
   values.approval_count = connected ? self.coordinator.getQueue().length : 0
   values.approval_actionable = active?.actionable ? 'true' : 'false'

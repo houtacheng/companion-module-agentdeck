@@ -66,6 +66,12 @@ export interface SessionInfo {
   contextPercent?: number
   totalTokens?: number
   question?: string
+  /** Supporting lines under `question` — the cwd it runs in, the policy
+   *  warning that says WHY approval is required, the originating session
+   *  key. Newline-separated, most-decisive-first. Without this, an approval
+   *  like an OpenClaw exec gate showed only a bare command with no statement
+   *  of why it needed approval. */
+  questionDetail?: string
   /** Present when an observed PreToolUse permission gate is held open for device
    *  approval — answer with permission_decision { requestId, decision }. */
   requestId?: string
